@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leyenda del Octágono - MMA</title>
+    <title>UFC Copero</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,72 +11,43 @@
         
         <!-- PANTALLA DE CREACIÓN -->
         <div id="creation-screen">
-            <h1>Leyenda del Octágono</h1>
-            <p>Comienza tu carrera hacia el cinturón.</p>
-            
-            <div class="form-group">
-                <label>Nombre del Peleador:</label>
-                <input type="text" id="playerName" value="Máximo" placeholder="Ingresa tu nombre">
-            </div>
-
-            <div class="form-group">
-                <label>Nacionalidad:</label>
-                <select id="playerNat">
-                    <option value="Argentina">Argentina 🇦🇷</option>
-                    <option value="Brasil">Brasil 🇧🇷</option>
-                    <option value="México">México 🇲🇽</option>
-                    <option value="USA">Estados Unidos 🇺🇸</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Categoría de Peso:</label>
-                <select id="playerWeight">
-                    <option value="Ligero">Peso Ligero (155 lbs)</option>
-                    <option value="Welter">Peso Wélter (170 lbs)</option>
-                    <option value="Medio">Peso Medio (185 lbs)</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Especialidad Base:</label>
-                <select id="playerSpec">
-                    <option value="Striker">Striker (Muay Thai / Kickboxing)</option>
-                    <option value="Grappler">Grappler (Jiu-Jitsu / Lucha)</option>
-                    <option value="Balanceado">Sambo / MMA Integral</option>
-                </select>
-            </div>
-
-            <button onclick="startGame()" class="btn-primary">Firmar Contrato</button>
+            <h1>UFC: El Camino</h1>
+            <p>Crea tu peleador.</p>
+            <input type="text" id="playerName" value="Máximo" placeholder="Tu nombre">
+            <select id="playerSpec">
+                <option value="Striker">Striker (Boxeo/Muay Thai)</option>
+                <option value="Grappler">Grappler (Jiu-Jitsu/Lucha)</option>
+            </select>
+            <button onclick="startGame()" class="btn-primary">Iniciar Carrera</button>
         </div>
 
-        <!-- HUB DEL JUEGO (Oculto al inicio) -->
+        <!-- HUB DEL JUEGO -->
         <div id="main-hub" style="display:none;">
-            <div class="header-stats">
-                <h2 id="hub-name">Nombre (0-0)</h2>
-                <span id="hub-rank" class="badge">Ranking: Novato</span>
+            <div class="calendar-bar">
+                <h3>🗓️ Semana: <span id="week-counter">1</span></h3>
+                <h4 id="next-fight-text" class="alert-text">Próxima pelea en: 4 semanas</h4>
             </div>
 
             <div class="dashboard">
-                <div class="card stats-card">
+                <div class="card">
                     <h3>Atributos</h3>
-                    <p>🔋 Energía: <span id="stat-energy">100</span>%</p>
+                    <p>💪 Condición Fís.: <span id="stat-cond">100</span>%</p>
                     <p>🥊 Striking: <span id="stat-str">10</span></p>
                     <p>🥋 Grappling: <span id="stat-gra">10</span></p>
-                    <p>💰 Dinero: $<span id="stat-money">500</span></p>
+                    <hr>
+                    <p>🏆 Récord: <span id="stat-record">0-0</span></p>
                 </div>
                 
                 <div class="card actions-card">
-                    <h3>Acciones</h3>
-                    <button onclick="train('striking')" class="btn-action">Entrenar Striking (-20 🔋)</button>
-                    <button onclick="train('grappling')" class="btn-action">Entrenar Grappling (-20 🔋)</button>
-                    <button onclick="rest()" class="btn-action">Descansar (+50 🔋 | -$50)</button>
-                    <button onclick="fight()" class="btn-fight">¡Buscar Pelea!</button>
+                    <h3>Plan Semanal</h3>
+                    <p class="hint">Elige qué hacer esta semana:</p>
+                    <button onclick="avanzarSemana('striking')" class="btn-action">🥊 Entrenar Striking</button>
+                    <button onclick="avanzarSemana('grappling')" class="btn-action">🥋 Entrenar Grappling</button>
+                    <button onclick="avanzarSemana('descanso')" class="btn-rest">🛌 Descansar / Recuperar</button>
                 </div>
             </div>
 
             <div class="log-container">
-                <h3>Historial de Eventos</h3>
                 <div id="log-box"></div>
             </div>
         </div>
