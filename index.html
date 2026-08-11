@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leyenda del Octágono - MMA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        
+        <!-- PANTALLA DE CREACIÓN -->
+        <div id="creation-screen">
+            <h1>Leyenda del Octágono</h1>
+            <p>Comienza tu carrera hacia el cinturón.</p>
+            
+            <div class="form-group">
+                <label>Nombre del Peleador:</label>
+                <input type="text" id="playerName" value="Máximo" placeholder="Ingresa tu nombre">
+            </div>
+
+            <div class="form-group">
+                <label>Nacionalidad:</label>
+                <select id="playerNat">
+                    <option value="Argentina">Argentina 🇦🇷</option>
+                    <option value="Brasil">Brasil 🇧🇷</option>
+                    <option value="México">México 🇲🇽</option>
+                    <option value="USA">Estados Unidos 🇺🇸</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Categoría de Peso:</label>
+                <select id="playerWeight">
+                    <option value="Ligero">Peso Ligero (155 lbs)</option>
+                    <option value="Welter">Peso Wélter (170 lbs)</option>
+                    <option value="Medio">Peso Medio (185 lbs)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Especialidad Base:</label>
+                <select id="playerSpec">
+                    <option value="Striker">Striker (Muay Thai / Kickboxing)</option>
+                    <option value="Grappler">Grappler (Jiu-Jitsu / Lucha)</option>
+                    <option value="Balanceado">Sambo / MMA Integral</option>
+                </select>
+            </div>
+
+            <button onclick="startGame()" class="btn-primary">Firmar Contrato</button>
+        </div>
+
+        <!-- HUB DEL JUEGO (Oculto al inicio) -->
+        <div id="main-hub" style="display:none;">
+            <div class="header-stats">
+                <h2 id="hub-name">Nombre (0-0)</h2>
+                <span id="hub-rank" class="badge">Ranking: Novato</span>
+            </div>
+
+            <div class="dashboard">
+                <div class="card stats-card">
+                    <h3>Atributos</h3>
+                    <p>🔋 Energía: <span id="stat-energy">100</span>%</p>
+                    <p>🥊 Striking: <span id="stat-str">10</span></p>
+                    <p>🥋 Grappling: <span id="stat-gra">10</span></p>
+                    <p>💰 Dinero: $<span id="stat-money">500</span></p>
+                </div>
+                
+                <div class="card actions-card">
+                    <h3>Acciones</h3>
+                    <button onclick="train('striking')" class="btn-action">Entrenar Striking (-20 🔋)</button>
+                    <button onclick="train('grappling')" class="btn-action">Entrenar Grappling (-20 🔋)</button>
+                    <button onclick="rest()" class="btn-action">Descansar (+50 🔋 | -$50)</button>
+                    <button onclick="fight()" class="btn-fight">¡Buscar Pelea!</button>
+                </div>
+            </div>
+
+            <div class="log-container">
+                <h3>Historial de Eventos</h3>
+                <div id="log-box"></div>
+            </div>
+        </div>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
