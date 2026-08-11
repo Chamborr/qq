@@ -1,152 +1,118 @@
-// Estado global del jugador
-let player = {
-    name: "",
-    nationality: "",
-    weightClass: "",
-    wins: 0,
-    losses: 0,
-    energy: 100,
-    striking: 10,
-    grappling: 10,
-    money: 500,
-    fights: 0
+// Variables Globales
+let jugador = {
+    nombre: "", condicion: 100, striking: 10, grappling: 10, victorias: 0, derrotas: 0
 };
 
-// Referencias del DOM
-const uiCreation = document.getElementById('creation-screen');
-const uiHub = document.getElementById('main-hub');
-const logBox = document.getElementById('log-box');
+let juego = {
+    semanaActual: 1,
+    semanaPelea: 5,
+    oponente: null
+};
 
 // Iniciar Juego
 function startGame() {
-    player.name = document.getElementById('playerName').value || "Desconocido";
-    player.nationality = document.getElementById('playerNat').value;
-    player.weightClass = document.getElementById('playerWeight').value;
-    const spec = document.getElementById('playerSpec').value;
+    jugador.nombre = document.getElementById('playerName').value || "Máximo";
+    let spec = document.getElementById('playerSpec').value;
 
-    // Asignar bonificaciones según especialidad
-    if (spec === "Striker") {
-        player.striking = 15;
-        player.grappling = 5;
-    } else if (spec === "Grappler") {
-        player.striking = 5;
-        player.grappling = 15;
-    } else {
-        player.striking = 10;
-        player.grappling = 10;
-    }
+    if (spec === "Striker") { jugador.striking = 15; jugador.grappling = 5; }
+    else { jugador.striking = 5; jugador.grappling = 15; }
 
-    // Cambiar de pantalla
-    uiCreation.style.display = "none";
-    uiHub.style.display = "block";
+    document.getElementById('creation-screen').style.display = "none";
+    document.getElementById('main-hub').style.display = "block";
     
-    updateUI();
-    log("¡Bienvenido al circuito profesional! Comienza entrenando o buscando tu primera pelea.");
+    programarNuevaPelea();
+    actualizarUI();
+    log(`¡Bienvenido ${jugador.nombre}! Tienes 4 semanas para prepararte para tu debut.`);
 }
 
-// Actualizar la interfaz con los datos actuales
-function updateUI() {
-    document.getElementById('hub-name').innerText = `${player.name} (${player.wins}-${player.losses})`;
-    document.getElementById('stat-energy').innerText = player.energy;
-    document.getElementById('stat-str').innerText = player.striking;
-    document.getElementById('stat-gra').innerText = player.grappling;
-    document.getElementById('stat-money').innerText = player.money;
-
-    // Actualizar ranking según victorias
-    let rank = "Novato Regional";
-    if(player.wins >= 3) rank = "Promesa Nacional";
-    if(player.wins >= 6) rank = "Contendiente Top 15";
-    if(player.wins >= 10) rank = "CANDIDATO AL TÍTULO";
-    document.getElementById('hub-rank').innerText = rank;
-}
-
-// Sistema de registro (Log)
-function log(message, type = "normal") {
-    const p = document.createElement('div');
-    p.className = `log-entry log-${type}`;
-    p.innerText = `> ${message}`;
-    logBox.prepend(p); // Agrega arriba
-}
-
-// Mecánica: Entrenar
-function train(type) {
-    if (player.energy < 20) {
-        log("Estás muy cansado para entrenar. Necesitas descansar.", "loss");
-        return;
+// Lógica de Iteración: Cada vez que haces algo, pasa 1 semana
+function avanzarSemana(accion) {
+    // 1. Aplicar los efectos de la decisión del jugador
+    if (accion === 'striking') {
+        let mejora = Math.floor(Math.random() * 3) + 1;
+        jugador.striking += mejora;
+        jugador.condicion -= 15;
+        log(`Semana ${juego.semanaActual}: Entrenaste striking. (+${mejora} Str, -15% Condición)`);
+    } 
+    else if (accion === 'grappling') {
+        let mejora = Math.floor(Math.random() * 3) + 1;
+        jugador.grappling += mejora;
+        jugador.condicion -= 15;
+        log(`Semana ${juego.semanaActual}: Entrenaste grappling. (+${mejora} Gra, -15% Condición)`);
+    } 
+    else if (accion === 'descanso') {
+        let recuperado = 30;
+        jugador.condicion = Math.min(100, jugador.condicion + recuperado);
+        log(`Semana ${juego.semanaActual}: Te tomaste la semana libre para descansar. (+${recuperado}% Condición)`);
     }
 
-    player.energy -= 20;
-    const gain = Math.floor(Math.random() * 3) + 1; // Gana entre 1 y 3 puntos
+    // Cuidado con la fatiga
+    if (jugador.condicion < 0) jugador.condicion = 0;
 
-    if (type === 'striking') {
-        player.striking += gain;
-        log(`Día duro en los sacos y manoplas. Ganaste +${gain} en Striking.`);
-    } else {
-        player.grappling += gain;
-        log(`Sesión intensa de sparring en el tatami. Ganaste +${gain} en Grappling.`);
+    // 2. Avanzar el tiempo
+    juego.semanaActual++;
+
+    // 3. Chequear si es la semana de la pelea
+    if (juego.semanaActual === juego.semanaPelea) {
+        ejecutarPelea();
     }
-    updateUI();
+
+    actualizarUI();
 }
 
-// Mecánica: Descansar
-function rest() {
-    if (player.money < 50) {
-        log("No tienes dinero suficiente para costear tu nutrición y descanso adecuado.", "loss");
-        return;
-    }
+function programarNuevaPelea() {
+    juego.semanaPelea = juego.semanaActual + 4; // Campamento de 4 semanas
     
-    player.money -= 50;
-    player.energy = Math.min(100, player.energy + 50);
-    log("Te tomaste unos buenos mates, relajaste el cuerpo y recuperaste energía. (-$50)");
-    updateUI();
-}
-
-// Mecánica: Pelear
-function fight() {
-    if (player.energy < 40) {
-        log("No puedes pelear con tan poca energía. Tómate un descanso.", "loss");
-        return;
-    }
-
-    player.fights++;
-    player.energy -= 40;
-
-    // Generar un oponente adaptado al nivel del jugador (con un poco de aleatoriedad)
-    const difficultyScale = 5 + (player.wins * 2); 
-    const enemy = {
-        name: `Peleador #${Math.floor(Math.random() * 900) + 100}`,
-        striking: difficultyScale + Math.floor(Math.random() * 10),
-        grappling: difficultyScale + Math.floor(Math.random() * 10)
+    // Generar rival basado en tu nivel
+    let nivelRival = 10 + (jugador.victorias * 3);
+    juego.oponente = {
+        nombre: `Peleador #${Math.floor(Math.random() * 99)}`,
+        striking: nivelRival + Math.floor(Math.random() * 5),
+        grappling: nivelRival + Math.floor(Math.random() * 5)
     };
+    
+    log(`--- NUEVA PELEA CONFIRMADA: vs ${juego.oponente.nombre} ---`);
+}
 
-    log(`--- EVENTO ESTELAR: Tú vs ${enemy.name} ---`);
+function ejecutarPelea() {
+    log(`¡LLEGÓ LA NOCHE DE LA PELEA! ${jugador.nombre} vs ${juego.oponente.nombre}`);
+    
+    // Penalización si llegas sobreentrenado (baja condición)
+    let penalidadFatiga = (100 - jugador.condicion) / 2; 
+    
+    let poderJugador = (jugador.striking + jugador.grappling) - penalidadFatiga + (Math.random() * 10);
+    let poderOponente = (juego.oponente.striking + juego.oponente.grappling) + (Math.random() * 10);
 
-    // Lógica del combate: Se calcula un puntaje basado en las stats + un factor de suerte (dado)
-    const playerRoll = (player.striking * Math.random()) + (player.grappling * Math.random());
-    const enemyRoll = (enemy.striking * Math.random()) + (enemy.grappling * Math.random());
-
-    if (playerRoll >= enemyRoll) {
-        // Victoria
-        player.wins++;
-        const bolsa = 300 + (player.wins * 100);
-        player.money += bolsa;
-        
-        // Decidir cómo ganó para el texto
-        const method = player.striking > player.grappling ? "KO espectacular" : "Sumisión técnica";
-        log(`¡VICTORIA! Derrotaste a ${enemy.name} por ${method}. Ganaste $${bolsa}.`, "win");
+    if (poderJugador >= poderOponente) {
+        jugador.victorias++;
+        log(`🔥 ¡VICTORIA! Le ganaste a ${juego.oponente.nombre}.`);
     } else {
-        // Derrota
-        player.losses++;
-        const bolsa = 100; // Gana menos por perder
-        player.money += bolsa;
-        log(`DERROTA. ${enemy.name} fue superior esta vez. Recibes $${bolsa} por participar.`, "loss");
+        jugador.derrotas++;
+        log(`💀 DERROTA. ${juego.oponente.nombre} te pasó por encima.`);
     }
 
-    updateUI();
+    // Resetear condición un poco después de pelear
+    jugador.condicion = 50; 
+    
+    // Programar el siguiente ciclo
+    programarNuevaPelea();
+}
 
-    if (player.wins >= 10) {
-        setTimeout(() => {
-            alert(`¡Felicidades ${player.name}! Has conseguido 10 victorias y te has coronado Campeón Mundial de peso ${player.weightClass}. ¡El juego ha terminado!`);
-        }, 500);
-    }
+function actualizarUI() {
+    document.getElementById('week-counter').innerText = juego.semanaActual;
+    let semanasRestantes = juego.semanaPelea - juego.semanaActual;
+    document.getElementById('next-fight-text').innerText = `Próxima pelea en: ${semanasRestantes} semanas`;
+    
+    document.getElementById('stat-cond').innerText = jugador.condicion;
+    document.getElementById('stat-str').innerText = jugador.striking;
+    document.getElementById('stat-gra').innerText = jugador.grappling;
+    document.getElementById('stat-record').innerText = `${jugador.victorias} - ${jugador.derrotas}`;
+}
+
+function log(mensaje) {
+    const p = document.createElement('div');
+    p.className = `log-entry`;
+    p.innerText = `> ${mensaje}`;
+    let caja = document.getElementById('log-box');
+    caja.prepend(p);
 }
